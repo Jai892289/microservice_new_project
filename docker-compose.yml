@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  auth-service:
+    build:
+      context: ./auth-service
+      args:
+        DATABASE_URL: postgresql://postgres:postgres@postgres:5432/authdb?schema=public
+    container_name: auth-service
+    ports:
+      - "4000:4000"
+    environment:
+        - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/authdb
+        - JWT_SECRET=supersecretkey
+        - JWT_EXPIRES_IN=1d
+    depends_on:
+      - postgres
+
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: authdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:

@@ -14,8 +14,7 @@ app.use("/api/auth", authRoutes);
 
 app.get("/",async (_, res) => {
   
-  await redis.set("test_key", "hello", "EX", 300);
-console.log("Redis test key created");
+ 
   res.send("Auth Service Running with TypeScript 🚀");
 });
 

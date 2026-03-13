@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { registerUser, loginUser } from "../services/auth.services";
+import { refreshAccessToken  } from "../services/refresh.service"
 
 export const login = async (req: Request, res: Response) => {
     try {
@@ -32,3 +33,20 @@ export const register = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Error registering user", error });
     }
 }
+
+
+export const refreshTokenController = async (req: Request, res: Response) => {
+  try {
+
+    const { refreshToken } = req.body;
+
+    const result = await refreshAccessToken(refreshToken);
+
+    res.json(result);
+
+  } catch (err: any) {
+    res.status(401).json({
+      message: err.message
+    });
+  }
+};

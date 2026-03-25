@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 
 export const createProductService = async (
@@ -5,17 +6,21 @@ export const createProductService = async (
   description: string,
   price: number,
   stock: number,
-) => {
-  (!name || !description || !price || !stock) &&
-    Promise.reject(new Error("All fields are required"));
-
+  vendorId:string
+) => { 
+ 
+    if (!name || price == null || stock == null) {
+    throw new Error("Required fields missing");
+  }
+ 
   const createProduct = await prisma.product.create({
     data: {
       name,
       description,
       price,
       stock,
-    },
+      vendorId
+    } as Prisma.ProductCreateInput,
   });
   return createProduct;
 };

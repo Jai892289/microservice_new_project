@@ -16,6 +16,18 @@ services:
     depends_on:
       - postgres
 
+  product-service:
+    build:
+      context: ./product-service
+    container_name: product-service
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/productdb?schema=public
+      - JWT_SECRET=supersecretkey
+    depends_on:
+      - postgres
+
 
   postgres:
     image: postgres:15

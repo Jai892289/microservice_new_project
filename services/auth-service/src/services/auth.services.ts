@@ -4,11 +4,14 @@ import * as jwt from "jsonwebtoken";
 import { SignOptions } from "jsonwebtoken";
 import redis from "../lib/redis";
 
-export const registerUser = async (email: string, password: string) => {
+export const registerUser = async (email: string, password: string, role:"CUSTOMER" | "SELLER" = "CUSTOMER") => {
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) {
     throw new Error("User already exists");
+  }
+  if (role !== "CUSTOMER" && role !== "SELLER") {
+    throw new Error("Invalid role");
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -16,6 +19,7 @@ export const registerUser = async (email: string, password: string) => {
     data: {
       email,
       password: hashedPassword,
+      role
     },
   });
   return user;
@@ -44,6 +48,7 @@ export const loginUser = async (email: string, password: string) => {
   })
 
   console.log("process.env.JWT_SECRET", process.env.JWT_SECRET)
+  
   if (!user) {
     await redis.incr(key);      // increase attempts
     await redis.expire(key, 300); // expire in 5 minutes
@@ -73,11 +78,14 @@ export const loginUser = async (email: string, password: string) => {
     expiresIn: "15m",
   };
 
+  console.log(user.role)
   const token = jwt.sign(
-    { userId: user.id, email: user.email },
+    { userId: user.id, email: user.email, role:user.role },
     secret,
     options
   );
+
+  console.log("token", token)
 
   const refreshToken = jwt.sign({ userId: user.id, email: user.email }, refreshTokenSecret, { expiresIn: "7d" });
 

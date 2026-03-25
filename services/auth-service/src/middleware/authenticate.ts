@@ -8,7 +8,6 @@ export const authenticateToken = (req: any, res: any, next: any) => {
     }
 
     const token = authHeader.split(" ")[1];
-
     if (!token) {
         throw new Error("Token is missing");
     }
